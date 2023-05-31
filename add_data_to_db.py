@@ -16,4 +16,3 @@ mycol = mydb["comments"]
 
 # # add the clean text column to the mongodb
 mycol.insert_many(comments)
-
