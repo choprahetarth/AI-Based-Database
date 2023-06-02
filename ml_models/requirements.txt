@@ -2,3 +2,4 @@ transformers
 flask_cors
 flask
 gunicorn
+torch
