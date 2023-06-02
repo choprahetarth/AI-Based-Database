@@ -17,8 +17,8 @@ tables:
     is_aidb: False
     model: None
     mapping:
-      input: None
-      output: None
+      - input: None
+        output: None
 
   - name: 'sentiment_analysis'
     columns:
@@ -34,8 +34,8 @@ tables:
     is_aidb: True
     model: 'https://mldb-zz2z.onrender.com/analyze_sentiment?text={}'
     mapping:
-      input: 'mongodb.tweet'
-      output: 'sentiment_analysis.sentiment'
+      - input: 'mongodb.tweet'
+        output: 'sentiment_analysis.sentiment'
 
   - name: 'closest_topic'
     columns:
@@ -51,5 +51,5 @@ tables:
     is_aidb: True
     model: 'https://mldb-zz2z.onrender.com/ner?text={}'
     mapping:
-      input: 'mongodb.tweet'
-      output: 'sentiment'
+      - input: 'mongodb.tweet'
+        output: 'sentiment'
