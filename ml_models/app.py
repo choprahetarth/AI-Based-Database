@@ -27,7 +27,25 @@ def analyze_sentiment():
         return jsonify(sentiment=result), 200
     else:
         return jsonify(error="No text provided"), 400
-    
+
+
+@app.route('/ner', methods=['GET'])
+def analyze_sentiment():
+    tweet = request.args.get('text')
+    if tweet:
+        url = "https://api.apilayer.com/nlp/named_entity?lang=eng"
+        payload = tweet
+        headers= {
+        "apikey": "T7z2uSqTq9YBRR6dgpQ5crLgTSq93XJl"
+        }
+        response = requests.request("POST", url, headers=headers, data = payload)
+        status_code = response.status_code
+        result = response.text
+        return jsonify(ner=result), status_code
+    else:
+        return jsonify(error="No text provided"), 400
+
+
 @app.route('/', methods=['GET'])
 def home_page():
     return "Hello World"
