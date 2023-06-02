@@ -26,7 +26,7 @@ tables:
         type: 'INTEGER'
         not_null: True
         foreign_key:
-          reference_table: 'mongodb'
+          reference_table: 'twitter'
           reference_column: 'id'
           on_delete_cascade: True
       - name: 'sentiment'
@@ -34,7 +34,7 @@ tables:
     is_aidb: True
     model: 'https://mldb-zz2z.onrender.com/analyze_sentiment?text={}'
     mapping:
-      - input: 'mongodb.tweet'
+      - input: 'twitter.tweet'
         output: 'sentiment_analysis.sentiment'
 
   - name: 'closest_topic'
@@ -43,7 +43,7 @@ tables:
         type: 'INTEGER'
         not_null: True
         foreign_key:
-          reference_table: 'mongodb'
+          reference_table: 'twitter'
           reference_column: 'id'
           on_delete_cascade: True
       - name: 'topic'
@@ -51,5 +51,5 @@ tables:
     is_aidb: True
     model: 'https://mldb-zz2z.onrender.com/ner?text={}'
     mapping:
-      - input: 'mongodb.tweet'
+      - input: 'twitter.tweet'
         output: 'sentiment'
