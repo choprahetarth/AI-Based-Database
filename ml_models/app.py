@@ -30,7 +30,7 @@ def analyze_sentiment():
 
 
 @app.route('/ner', methods=['GET'])
-def analyze_sentiment():
+def provide_ner():
     tweet = request.args.get('text')
     if tweet:
         url = "https://api.apilayer.com/nlp/named_entity?lang=eng"
