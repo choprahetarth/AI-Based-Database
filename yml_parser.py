@@ -113,4 +113,4 @@ def populate_unstructured(yaml_parsed):
 yaml_parsed  = read_yaml("config.yaml")
 queries = read_structure_of_tables(yaml_parsed)
 execute_queries(queries,yaml_parsed)
-populate_unstructured(yaml_parsed)
+# populate_unstructured(yaml_parsed)
