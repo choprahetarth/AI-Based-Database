@@ -85,18 +85,32 @@ def execute_queries(queries, yaml_parsed):
         print("Could not execute the queries")
 
 def populate_unstructured(yaml_parsed):
-    fake = Faker()
-    for table in yaml_parsed["tables"]:
-        if table['is_aidb']==False:
-            tweet = fake.text()  # Generate a random text for the tweet
-            # Insert into the mongodb table
-            query = f"INSERT INTO {table['name']}({table['unstructured_text']}) VALUES ({tweet}) RETURNING id;"
-            print(query)
-            # cur.execute() # returning ID means that the auto-increment ID is
-            # tweet_id = cur.fetchone()[0]  #Get the id of the newly inserted tweet
+    try:
+        conn = psycopg2.connect(
+            host=yaml_parsed['database']['host'],
+            database=yaml_parsed['database']['name'],
+            user=yaml_parsed['database']['user'],
+            password=yaml_parsed['database']['password'],
+            port=yaml_parsed['database']['port'])
+        # initialize the faker object
+        fake = Faker()
+        num_samples = 20
+        print("Started populating the values")
+        cur = conn.cursor()
+        for _ in range(num_samples):
+            for table in yaml_parsed["tables"]:
+                if table['is_aidb']==False:
+                    tweet = fake.text()  # Generate a random text for the tweet
+                    # Insert into the twitter table
+                    query = f"INSERT INTO {table['name']}({table['unstructured_text']}) VALUES ('{tweet}') RETURNING id;"
+                    cur.execute(query) 
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception as e: print(e)
 
 
 yaml_parsed  = read_yaml("config.yaml")
-# queries = read_structure_of_tables(yaml_parsed)
-# execute_queries(queries,yaml_parsed)
+queries = read_structure_of_tables(yaml_parsed)
+execute_queries(queries,yaml_parsed)
 populate_unstructured(yaml_parsed)
