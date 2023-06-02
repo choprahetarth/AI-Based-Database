@@ -19,6 +19,7 @@ tables:
     mapping:
       - input: None
         output: None
+    unstructured_text: 'tweet'
 
   - name: 'sentiment_analysis'
     columns:
@@ -36,6 +37,7 @@ tables:
     mapping:
       - input: 'twitter.tweet'
         output: 'sentiment_analysis.sentiment'
+    unstructured_text: None
 
   - name: 'closest_topic'
     columns:
@@ -53,3 +55,4 @@ tables:
     mapping:
       - input: 'twitter.tweet'
         output: 'sentiment'
+    unstructured_text: None

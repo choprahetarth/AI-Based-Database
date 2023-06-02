@@ -1,5 +1,7 @@
 import yaml
 import psycopg2
+from faker import Faker
+
 
 def read_yaml(path):
     with open(path, "r") as stream:
@@ -82,8 +84,19 @@ def execute_queries(queries, yaml_parsed):
     except:
         print("Could not execute the queries")
 
+def populate_unstructured(yaml_parsed):
+    fake = Faker()
+    for table in yaml_parsed["tables"]:
+        if table['is_aidb']==False:
+            tweet = fake.text()  # Generate a random text for the tweet
+            # Insert into the mongodb table
+            query = f"INSERT INTO {table['name']}({table['unstructured_text']}) VALUES ({tweet}) RETURNING id;"
+            print(query)
+            # cur.execute() # returning ID means that the auto-increment ID is
+            # tweet_id = cur.fetchone()[0]  #Get the id of the newly inserted tweet
+
 
 yaml_parsed  = read_yaml("config.yaml")
-queries = read_structure_of_tables(yaml_parsed)
-execute_queries(queries,yaml_parsed)
-
+# queries = read_structure_of_tables(yaml_parsed)
+# execute_queries(queries,yaml_parsed)
+populate_unstructured(yaml_parsed)
