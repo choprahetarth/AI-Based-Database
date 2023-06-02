@@ -6,15 +6,12 @@ import requests
 app = Flask(__name__)
 
 
-# using a free API for sentiment analysis 
-url = "https://api.apilayer.com/sentiment/analysis"
-
-
-
 @app.route('/analyze_sentiment', methods=['GET'])
 def analyze_sentiment():
     tweet = request.args.get('text')
     if tweet:
+        # using a free API for sentiment analysis 
+        url = "https://api.apilayer.com/sentiment/analysis"
         payload = tweet
         headers= {
         "apikey": "T7z2uSqTq9YBRR6dgpQ5crLgTSq93XJl"
