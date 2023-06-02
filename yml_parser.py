@@ -17,7 +17,7 @@ def connect_to_database(yaml_parsed):
             database=yaml_parsed['database']['name'],
             user=yaml_parsed['database']['user'],
             password=yaml_parsed['database']['password'],
-            host=yaml_parsed['database']['port'])
+            port=yaml_parsed['database']['port'])
         # initiate the cursor
         print("Connected to the Database")
         cur = conn.cursor()
@@ -28,3 +28,4 @@ def connect_to_database(yaml_parsed):
         print("Unexpected error in database")
 
 yaml_parsed  = read_yaml("config.yaml")
+connect_to_database(yaml_parsed) 
