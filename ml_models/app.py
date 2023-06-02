@@ -23,8 +23,8 @@ def analyze_sentiment():
         response = requests.request("POST", url, headers=headers, data = payload)
         status_code = response.status_code
         result = response.text
-        sentiment = "positive" if result['label'] == 'positive' else "negative"
-        return jsonify(sentiment=sentiment), 200
+        # sentiment = "positive" if result['label'] == 'positive' else "negative"
+        return jsonify(sentiment=result), 200
     else:
         return jsonify(error="No text provided"), 400
     
