@@ -27,5 +27,7 @@ def connect_to_database(yaml_parsed):
     except:
         print("Unexpected error in database")
 
+def create_schema():
+    
 yaml_parsed  = read_yaml("config.yaml")
 connect_to_database(yaml_parsed) 
