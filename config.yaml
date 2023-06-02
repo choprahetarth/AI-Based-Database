@@ -1,0 +1,55 @@
+database:
+  name: 'number_1_ejyg'
+  user: 'number_1_ejyg_user'
+  password: 'vAmatxsIhPQ1zKq23E9TWAMTKuDDNraJ'
+  host: 'dpg-chs7fa64dadfn6140gf0-a.ohio-postgres.render.com'
+  port: 5432
+
+tables:
+  - name: 'twitter'
+    columns:
+      - name: 'id'
+        type: 'SERIAL'
+        primary_key: True
+      - name: 'tweet'
+        type: 'TEXT'
+        not_null: True
+    is_aidb: False
+    model: None
+    mapping:
+      input: None
+      output: None
+
+  - name: 'sentiment_analysis'
+    columns:
+      - name: 'id'
+        type: 'INTEGER'
+        not_null: True
+        foreign_key:
+          reference_table: 'mongodb'
+          reference_column: 'id'
+          on_delete_cascade: True
+      - name: 'sentiment'
+        type: 'BOOLEAN'
+    is_aidb: True
+    model: 'https://mldb-zz2z.onrender.com/analyze_sentiment?text={}'
+    mapping:
+      input: 'mongodb.tweet'
+      output: 'sentiment_analysis.sentiment'
+
+  - name: 'closest_topic'
+    columns:
+      - name: 'id'
+        type: 'INTEGER'
+        not_null: True
+        foreign_key:
+          reference_table: 'mongodb'
+          reference_column: 'id'
+          on_delete_cascade: True
+      - name: 'topic'
+        type: 'TEXT'
+    is_aidb: True
+    model: 'https://mldb-zz2z.onrender.com/ner?text={}'
+    mapping:
+      input: 'mongodb.tweet'
+      output: 'sentiment'
