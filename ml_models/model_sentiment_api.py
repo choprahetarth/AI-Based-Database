@@ -19,5 +19,3 @@ def create_app():
             return jsonify(error="No text provided"), 400
 
     return app
-
-app = create_app()
