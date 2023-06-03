@@ -1,14 +1,16 @@
 import yaml
 import psycopg2
 import pandas as pd
+from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
+import sqlparse
 
 
 # query = """SELECT AVG(LENGTH(tweet)) FROM twitter 
 # WHERE LENGTH(tweet) >120"""
 # columns, rows, tables = identify_query_columns_rows_tables(query,yaml_parsed)
 # print(columns,rows, tables)
-# from sqlalchemy import create_engine
-# from sqlalchemy.engine import URL
+
 # # from sqlalchemy.orm import sessionmaker
 
 
@@ -31,7 +33,6 @@ import pandas as pd
 # print(df)
 
 
-import sqlparse
 
 
 def read_yaml(path):
@@ -75,13 +76,15 @@ def execute_queries(queries, yaml_parsed):
         # initiate the cursor
         print("Executed the queries")
         cur = conn.cursor()
+        length_of_tables=0
         for i in queries:
             cur.execute(i)
-            print(cur.fetchall())
+            length_of_tables+=len(cur.fetchall())
         # close the connection
         conn.commit()
         cur.close()
         conn.close()
+        return length_of_tables
     except Exception as e: print(e)
 
 yaml_parsed  = read_yaml("config.yaml")
@@ -90,6 +93,8 @@ query = """SELECT AVG(LENGTH(topic))
         FROM closest_topic
         JOIN sentiment_analysis ON closest_topic.id = sentiment_analysis.id
         WHERE sentiment_analysis.sentiment = 'false';"""
+
+# get query elements
 query_info = extract_query_info(query)
 print("Tables:", query_info['tables'])
 
@@ -98,4 +103,33 @@ empty_queries = []
 for i in query_info['tables']:
     empty_queries.append(f"""select true from {i} limit 1;""")
 
-execute_queries(empty_queries, yaml_parsed)
+length_of_tables = execute_queries(empty_queries, yaml_parsed)
+# if 0, we know that it has to be populated with ML Query 
+
+def get_ml_model_details(yaml_parsed):
+    ml_model_details={}
+    for i in yaml_parsed['tables']:
+        if i['is_aidb']==True:
+            model_api = i['model']
+            mapping = i['mapping']
+            ml_model_details[i['name']] = model_api,mapping
+    return ml_model_details
+
+get_ml_model_details(yaml_parsed)
+
+
+# # identify unstructured dataset
+# for i in yaml_parsed['tables']:
+#     if i['unstructured_text']!='None':
+#         url = URL.create(
+#             drivername="postgresql",
+#             username=yaml_parsed['database']['user'],
+#             host=yaml_parsed['database']['host'],
+#             database=yaml_parsed['database']['name'],
+#             password = yaml_parsed['database']['password']
+#         )
+#         engine = create_engine(url)
+#         connection = engine.connect()
+#         # df_iter = pd.read_sql_table(i['name'], connection, chunksize=2)
+#         for chunk in pd.read_sql_table(i['name'], connection, chunksize=1):
+#             print(chunk['tweet'])
