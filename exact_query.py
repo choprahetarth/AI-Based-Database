@@ -137,9 +137,9 @@ for x in ml_model_details.keys():
     engine = create_engine(url)
     connection = engine.connect()
     for chunk in pd.read_sql_table(source_table_and_col[0], connection, chunksize=1):
+        primary_key = chunk[source_table_and_col[0]].values[0]
         payload = chunk[source_table_and_col[1]].values[0]
         response = requests.request("GET", api, params={'text':payload})
         result = response.text
-        print(chunk)
-        print(result)
-        break
+        # now append the output here in the SQL database 
+        cur.execute(f"INSERT INTO sentiment_analysis (id, sentiment) VALUES (%s, %s);"
