@@ -33,7 +33,8 @@ def read_structure_of_tables(yaml_parsed):
     queries = []
     for table in yaml_parsed["tables"]:
         if table['is_aidb']==True:
-            prefix="ai_"
+            # prefix="ai_"
+            prefix=""
         else:
             prefix=""
         # Build the CREATE TABLE query
