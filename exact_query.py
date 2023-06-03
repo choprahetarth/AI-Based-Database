@@ -4,6 +4,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
 import sqlparse
+import requests
 
 
 # query = """SELECT AVG(LENGTH(tweet)) FROM twitter 
@@ -115,21 +116,30 @@ def get_ml_model_details(yaml_parsed):
             ml_model_details[i['name']] = model_api,mapping
     return ml_model_details
 
-get_ml_model_details(yaml_parsed)
+ml_model_details = get_ml_model_details(yaml_parsed)
 
+# identify unstructured dataset
+print(ml_model_details)
 
-# # identify unstructured dataset
-# for i in yaml_parsed['tables']:
-#     if i['unstructured_text']!='None':
-#         url = URL.create(
-#             drivername="postgresql",
-#             username=yaml_parsed['database']['user'],
-#             host=yaml_parsed['database']['host'],
-#             database=yaml_parsed['database']['name'],
-#             password = yaml_parsed['database']['password']
-#         )
-#         engine = create_engine(url)
-#         connection = engine.connect()
-#         # df_iter = pd.read_sql_table(i['name'], connection, chunksize=2)
-#         for chunk in pd.read_sql_table(i['name'], connection, chunksize=1):
-#             print(chunk['tweet'])
+for x in ml_model_details.keys():
+    source_table_and_col = ml_model_details[x][1][0]['input'].split('.',1)
+    api = ml_model_details[x][0]
+    # print(api)
+    output_table_and_col = ml_model_details[x][1][0]['output'].split('.',1)
+    # print(output_table_and_col)
+    url = URL.create(
+        drivername="postgresql",
+        username=yaml_parsed['database']['user'],
+        host=yaml_parsed['database']['host'],
+        database=yaml_parsed['database']['name'],
+        password = yaml_parsed['database']['password']
+    )
+    engine = create_engine(url)
+    connection = engine.connect()
+    for chunk in pd.read_sql_table(source_table_and_col[0], connection, chunksize=1):
+        payload = chunk[source_table_and_col[1]].values[0]
+        response = requests.request("GET", api, params={'text':payload})
+        result = response.text
+        print(chunk)
+        print(result)
+        break

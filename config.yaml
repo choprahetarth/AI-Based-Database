@@ -33,7 +33,7 @@ tables:
       - name: 'sentiment'
         type: 'BOOLEAN'
     is_aidb: True
-    model: 'https://mldb-zz2z.onrender.com/analyze_sentiment?text={}'
+    model: 'https://mldb-zz2z.onrender.com/analyze_sentiment'
     mapping:
       - input: 'twitter.tweet'
         output: 'sentiment_analysis.sentiment'
@@ -51,8 +51,8 @@ tables:
       - name: 'topic'
         type: 'TEXT'
     is_aidb: True
-    model: 'https://mldb-zz2z.onrender.com/ner?text={}'
+    model: 'https://mldb-zz2z.onrender.com/ner'
     mapping:
       - input: 'twitter.tweet'
-        output: 'sentiment'
+        output: 'closest_topic.sentiment'
     unstructured_text: None
