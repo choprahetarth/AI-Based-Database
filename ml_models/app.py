@@ -21,7 +21,7 @@ def analyze_sentiment():
         status_code = response.status_code
         result = response.text
         # sentiment = "positive" if result['label'] == 'positive' else "negative"
-        return jsonify(sentiment=result['sentiment']['sentiment']), 200
+        return jsonify(sentiment=result['sentiment']), 200
     else:
         return jsonify(error="No text provided"), 400
 
