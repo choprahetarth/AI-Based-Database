@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import requests
+import json
 
 
 app = Flask(__name__)
@@ -20,6 +21,7 @@ def analyze_sentiment():
         response = requests.request("POST", url, headers=headers, data = payload)
         status_code = response.status_code
         result = response.text
+        result = json.loads(result)
         # sentiment = "positive" if result['label'] == 'positive' else "negative"
         return jsonify(sentiment=result['sentiment']), 200
     else:
@@ -38,6 +40,7 @@ def provide_ner():
         response = requests.request("POST", url, headers=headers, data = payload)
         status_code = response.status_code
         result = response.text
+        result = json.loads(result)
         return jsonify(ner=result), status_code
     else:
         return jsonify(error="No text provided"), 400
