@@ -26,8 +26,7 @@ def connect_to_database(yaml_parsed):
         # close the connection
         cur.close()
         conn.close()
-    except:
-        print("Unexpected error in database")
+    except Exception as e: print(e)
 
 
 def read_structure_of_tables(yaml_parsed):
@@ -81,8 +80,7 @@ def execute_queries(queries, yaml_parsed):
         conn.commit()
         cur.close()
         conn.close()
-    except:
-        print("Could not execute the queries")
+    except Exception as e: print(e)
 
 def populate_unstructured(yaml_parsed):
     try:
@@ -113,4 +111,4 @@ def populate_unstructured(yaml_parsed):
 yaml_parsed  = read_yaml("config.yaml")
 queries = read_structure_of_tables(yaml_parsed)
 execute_queries(queries,yaml_parsed)
-# populate_unstructured(yaml_parsed)
+populate_unstructured(yaml_parsed)
