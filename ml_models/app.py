@@ -1,5 +1,4 @@
 from flask import Flask, jsonify, request
-from flask_cors import CORS
 import requests
 import json
 
@@ -11,7 +10,7 @@ app = Flask(__name__)
 def analyze_sentiment():
     tweet = request.args.get('text')
     if tweet:
-        # using a free API for sentiment analysis 
+        # using a free API for sentiment analysis
         url = "https://api.apilayer.com/sentiment/analysis"
         payload = tweet
         headers= {
@@ -23,7 +22,7 @@ def analyze_sentiment():
         result = response.text
         result = json.loads(result)
         # sentiment = "positive" if result['label'] == 'positive' else "negative"
-        return jsonify(sentiment=result['sentiment']), 200
+        return jsonify(sentiment=result['sentiment']), status_code
     else:
         return jsonify(error="No text provided"), 400
 
