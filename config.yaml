@@ -31,7 +31,7 @@ tables:
           reference_column: 'id'
           on_delete_cascade: True
       - name: 'sentiment'
-        type: 'BOOLEAN'
+        type: 'TEXT'
     is_aidb: True
     model: 'https://mldb-zz2z.onrender.com/analyze_sentiment'
     mapping:
@@ -54,5 +54,5 @@ tables:
     model: 'https://mldb-zz2z.onrender.com/ner'
     mapping:
       - input: 'twitter.tweet'
-        output: 'closest_topic.sentiment'
+        output: 'closest_topic.topic'
     unstructured_text: None
