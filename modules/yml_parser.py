@@ -54,7 +54,6 @@ class CreateSchema():
             # close the connection
             conn.commit()
             cur.close()
-            conn.close()
         except Exception as e: print(e)
 
     def populate_unstructured(self, conn):
@@ -73,7 +72,7 @@ class CreateSchema():
                         cur.execute(query) 
             conn.commit()
             cur.close()
-            conn.close()
+            print("Completed the population")
         except Exception as e: print(e)
 
 y = YamlBuilder('config.yaml')
@@ -86,3 +85,5 @@ c = CreateSchema(yaml_parsed)
 queries = c.read_structure_of_tables()
 c.execute_queries(queries,conn)
 c.populate_unstructured(conn)
+# close the connection
+conn.close()

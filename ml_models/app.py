@@ -5,7 +5,6 @@ import json
 
 app = Flask(__name__)
 
-
 @app.route('/analyze_sentiment', methods=['GET'])
 def analyze_sentiment():
     tweet = request.args.get('text')
