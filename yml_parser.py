@@ -7,7 +7,7 @@ class CreateSchema():
         self.path = path
             
     def read_yaml(self):
-        with open(self.path, "r") as stream:
+        with open(self.path, "rb") as stream:
             try:
                 yaml_parsed = yaml.safe_load(stream)
             except yaml.YAMLError as exc:

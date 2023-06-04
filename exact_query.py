@@ -82,7 +82,8 @@ yaml_parsed  = read_yaml("config.yaml")
 query = """SELECT AVG(LENGTH(topic))
         FROM closest_topic
         JOIN sentiment_analysis ON closest_topic.id = sentiment_analysis.id
-        WHERE sentiment_analysis.sentiment = 'false';"""
+        WHERE sentiment_analysis.sentiment = '{"sentiment":"neutral"}
+';"""
 
 # get query elements
 query_info = extract_query_info(query)
@@ -94,6 +95,7 @@ for i in query_info['tables']:
     empty_queries.append(f"""select true from {i} limit 1;""")
 
 length_of_tables = execute_queries(empty_queries, yaml_parsed)
+print(length_of_tables)
 # if 0, we know that it has to be populated with ML Query 
 
 def get_ml_model_details(yaml_parsed):
@@ -109,6 +111,38 @@ ml_model_details = get_ml_model_details(yaml_parsed)
 
 # identify unstructured dataset
 print(ml_model_details)
+if length_of_tables==0:
+    try:
+        conn = psycopg2.connect(
+            host=yaml_parsed['database']['host'],
+            database=yaml_parsed['database']['name'],
+            user=yaml_parsed['database']['user'],
+            password=yaml_parsed['database']['password'],
+            port=yaml_parsed['database']['port'])
+        for (x,y) in ml_model_details.items():
+            source_table_and_col = ml_model_details[x][1][0]['input'].split('.',1)
+            api = ml_model_details[x][0]
+            output_table_and_col = ml_model_details[x][1][0]['output'].split('.',1)
+            # print(output_table_and_col)
+            connection, _  = connect_to_db_and_reflect(yaml_parsed)
+            for chunk in pd.read_sql_table(source_table_and_col[0], connection, chunksize=1):
+                primary_key = chunk['id'].values[0]
+                payload = chunk[source_table_and_col[1]].values[0]
+                response = requests.request("GET", api, params={'text':payload})
+                result = response.text
+                inserting_query = f"""INSERT INTO {output_table_and_col[0]} (id, {output_table_and_col[1]}) VALUES ({primary_key},'{result}');""" # hack
+                print(inserting_query)
+                print("Executed the queries")
+                cur = conn.cursor()
+                cur.execute(inserting_query)
+                # close the connection
+                conn.commit()
+                cur.close()
+        conn.close()
+        print("ML Population done")
+    except Exception as e: print(e)
+
+print("Fetching Results of Exact query")
 
 try:
     conn = psycopg2.connect(
@@ -117,25 +151,12 @@ try:
         user=yaml_parsed['database']['user'],
         password=yaml_parsed['database']['password'],
         port=yaml_parsed['database']['port'])
-    for (x,y) in ml_model_details.items():
-        source_table_and_col = ml_model_details[x][1][0]['input'].split('.',1)
-        api = ml_model_details[x][0]
-        output_table_and_col = ml_model_details[x][1][0]['output'].split('.',1)
-        # print(output_table_and_col)
-        connection, _  = connect_to_db_and_reflect(yaml_parsed)
-        for chunk in pd.read_sql_table(source_table_and_col[0], connection, chunksize=1):
-            primary_key = chunk['id'].values[0]
-            payload = chunk[source_table_and_col[1]].values[0]
-            response = requests.request("GET", api, params={'text':payload})
-            result = response.text
-            query = f"""INSERT INTO {output_table_and_col[0]} (id, {output_table_and_col[1]}) VALUES ({primary_key},'{result}');""" # hack
-            print(query)
-            print("Executed the queries")
-            cur = conn.cursor()
-            cur.execute(query)
-            # close the connection
-            conn.commit()
-            cur.close()
+    # initiate the cursor
+    print("Executed the queries")
+    cur = conn.cursor()
+    cur.execute(query)
+    print(cur.fetchall())
+    # close the connection
+    cur.close()
     conn.close()
-    print("ML Population done")
 except Exception as e: print(e)
