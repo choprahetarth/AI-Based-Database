@@ -1,5 +1,6 @@
 {
     "yaml.schemas": {
         "https://raw.githubusercontent.com/arvinxx/components/master/packages/journey-map/schema/journey-map.schema.json": "file:///workspaces/AI-Based-Database/config.yaml"
-    }
+    },
+    "python.linting.enabled": true
 }

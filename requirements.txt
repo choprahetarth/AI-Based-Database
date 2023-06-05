@@ -1,0 +1,8 @@
+sqlalchemy
+pandas
+psycopg2
+yaml
+faker
+streamlit 
+requests
+sqlparse
