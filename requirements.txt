@@ -1,7 +1,6 @@
 sqlalchemy
 pandas
-psycopg2-binary
-yaml
+psycopg2=='2.9.6'
 faker
 streamlit 
 requests
