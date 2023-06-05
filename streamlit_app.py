@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import os
 import streamlit as st
 from modules.read_yaml import YamlBuilder
 from modules.connect_to_database import ConnectDb
@@ -12,6 +13,11 @@ st.header('AIDB-Exact Query')
 # so far the implementation is only in PDF Files
 # Upload resume
 yaml_file = st.file_uploader('Upload your resume')
+# Save resume locally
+if yaml_file:
+    with open(os.path.join('config.yaml'), 'wb') as f:
+        f.write(yaml_file.getbuffer())
+    st.success('yaml file saved locally')
 
 # Text inputs 
 query = st.text_input("PASTE EXACT QUERY")
