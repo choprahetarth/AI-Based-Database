@@ -22,29 +22,26 @@ if yaml_file:
 # Text inputs 
 query = st.text_input("PASTE EXACT QUERY")
 
-if st.button('Compute!') and query and yaml_file:
+if yaml_file and query:
     #### read the yaml file
     y = YamlBuilder('config.yaml')
     yaml_parsed  = y.read_yaml()
+
     #### connect the database
     d = ConnectDb(yaml_parsed)
     conn = d.establish_connection()
 
+
+if st.button('Make Schema') and query and yaml_file:
     c = CreateSchema(yaml_parsed)
     queries = c.read_structure_of_tables()
     c.execute_queries(queries,conn)
     c.populate_unstructured(conn)
     st.write('DB is created and populated with Tweets')
 
-    # query = """SELECT AVG(LENGTH(topic))
-    #         FROM closest_topic
-    #         JOIN sentiment_analysis ON closest_topic.id = sentiment_analysis.id
-    #         WHERE sentiment_analysis.sentiment = '{"sentiment":"neutral"}
-    # ';"""
-
+if st.button('Compute!') and query and yaml_file:
     # instantiate the exact query object
     eq = ExactQuery(query, yaml_parsed, conn)
-
     # get tables 
     query_info = eq.extract_query_info()
     length_of_tables = eq.execute_queries(query_info)
@@ -85,7 +82,7 @@ if st.button('Compute!') and query and yaml_file:
         st.write("Executed the queries")
         cur = conn.cursor()
         cur.execute(query)
-        st.write(cur.fetchall())
+        st.write(str(cur.fetchall()))
         # close the connection
         cur.close()
     except Exception as e: print(e)
