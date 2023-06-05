@@ -11,7 +11,7 @@ st.header('AIDB-Exact Query')
 
 # so far the implementation is only in PDF Files
 # Upload resume
-yaml_file = st.file_uploader('Upload your resume', type=['yml'])
+yaml_file = st.file_uploader('Upload your resume')
 
 # Text inputs 
 query = st.text_input("PASTE EXACT QUERY")
