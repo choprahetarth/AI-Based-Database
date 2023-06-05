@@ -1,6 +1,6 @@
 sqlalchemy
 pandas
-psycopg2
+psycopg2-binary
 yaml
 faker
 streamlit 
