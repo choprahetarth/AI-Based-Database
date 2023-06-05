@@ -41,7 +41,7 @@ if length_of_tables==0:
                 payload = chunk[source_table_and_col[1]].values[0]
                 response = requests.request("GET", api, params={'text':payload})
                 result = response.text
-                inserting_query = f"""INSERT INTO {output_table_and_col[0]} (id, {output_table_and_col[1]}) VALUES ({primary_key},'{result}');""" # hack
+                inserting_query = f"""INSERT INTO {output_table_and_col[0]} (id, {output_table_and_col[1]}) VALUES ({primary_key},'{result[-1]}');""" # hack
                 print(inserting_query)
                 print("Executed the queries")
                 cur = conn.cursor()
