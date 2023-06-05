@@ -4,6 +4,8 @@ import streamlit as st
 from modules.read_yaml import YamlBuilder
 from modules.connect_to_database import ConnectDb
 from modules.exact_query import ExactQuery
+from modules.yml_parser import CreateSchema
+
 
 st.header('AIDB-Exact Query')
 
@@ -18,10 +20,15 @@ if st.button('Compute!') and query and yaml_file:
     #### read the yaml file
     y = YamlBuilder('config.yaml')
     yaml_parsed  = y.read_yaml()
-
     #### connect the database
     d = ConnectDb(yaml_parsed)
     conn = d.establish_connection()
+
+    c = CreateSchema(yaml_parsed)
+    queries = c.read_structure_of_tables()
+    c.execute_queries(queries,conn)
+    c.populate_unstructured(conn)
+    st.write('DB is created and populated with Tweets')
 
     # query = """SELECT AVG(LENGTH(topic))
     #         FROM closest_topic
@@ -60,19 +67,19 @@ if st.button('Compute!') and query and yaml_file:
                     # close the connection
                     conn.commit()
                     cur.close()
-            print("ML Population done")
+            st.write("ML Population done")
         except Exception as e: print(e)
     else:
-        print("DB Already Populated")
+        st.write("DB Already Populated")
 
-    print("Fetching Results of Exact query")
+    st.write("Fetching Results of Exact query")
 
     try:
         # initiate the cursor
-        print("Executed the queries")
+        st.write("Executed the queries")
         cur = conn.cursor()
         cur.execute(query)
-        print(cur.fetchall())
+        st.write(cur.fetchall())
         # close the connection
         cur.close()
     except Exception as e: print(e)
