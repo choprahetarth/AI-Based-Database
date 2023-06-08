@@ -89,7 +89,9 @@ if st.button('Compute!') and query and yaml_file:
 
     try:
         result = execute_exact_query(query, conn)
-        st.write(str(float(list_of_output[0][0])))
+        output_of_the_exact_query = str(float(list_of_output[0][0]))
+        print(output_of_the_exact_query)
+        st.write(output_of_the_exact_query)
     except Exception as e:
         print(e)
 
