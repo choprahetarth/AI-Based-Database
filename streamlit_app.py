@@ -87,12 +87,12 @@ if st.button('Compute!') and query and yaml_file:
 
     st.write("Fetching Results of Exact query")
 
-    try:
-        result = execute_exact_query(query, conn)
-        output_of_the_exact_query = str(float(list_of_output[0][0]))
-        print(output_of_the_exact_query)
-        st.write(output_of_the_exact_query)
-    except Exception as e:
-        print(e)
+    # try:
+    result = execute_exact_query(query, conn)
+    output_of_the_exact_query = str(float(list_of_output[0][0]))
+    print(output_of_the_exact_query)
+    st.write(output_of_the_exact_query)
+    # except Exception as e:
+    #     print(e)
 
     conn.close()
