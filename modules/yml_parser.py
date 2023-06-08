@@ -8,13 +8,8 @@ class CreateSchema():
     def read_structure_of_tables(self):
         queries = []
         for table in self.yaml_parsed["tables"]:
-            if table['is_aidb']==True:
-                # prefix="ai_"
-                prefix=""
-            else:
-                prefix=""
             # Build the CREATE TABLE query
-            query = f"CREATE TABLE IF NOT EXISTS {prefix}{table['name']} ("
+            query = f"CREATE TABLE IF NOT EXISTS {table['name']} ("
 
             columns = []
             for column in table['columns']:
@@ -70,3 +65,22 @@ class CreateSchema():
             cur.close()
             print("Completed the population")
         except Exception as e: print(e)
+
+
+
+# from read_yaml import YamlBuilder
+# from connect_to_database import ConnectDb
+
+
+# y = YamlBuilder('config.yaml')
+# yaml_parsed  = y.read_yaml()
+
+# d = ConnectDb(yaml_parsed)
+# conn = d.establish_connection()
+
+# c = CreateSchema(yaml_parsed)
+# queries = c.read_structure_of_tables()
+# c.execute_queries(queries,conn)
+# c.populate_unstructured(conn)
+# # close the connection
+# conn.close()
