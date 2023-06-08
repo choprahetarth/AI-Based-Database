@@ -23,9 +23,7 @@ class ApproxQuery:
         columns = []
         tables = []
         conditions = []
-
-        from_seen = False
-        where_seen = False
+        where_condition = []
 
         for statement in parsed_query:
             for token in statement.tokens:
@@ -34,18 +32,16 @@ class ApproxQuery:
                         columns.append(str(identifier))
                 elif isinstance(token, sqlparse.sql.Identifier):
                     tables.append(str(token))
-                # elif token.ttype is sqlparse.tokens.Keyword and token.value.upper() == 'FROM':
-                #     from_seen = True
-                # elif token.ttype is sqlparse.tokens.Keyword and token.value.upper() == 'WHERE':
-                #     where_seen = True
-                # elif where_seen and not isinstance(token, sqlparse.sql.Where):
-                #     conditions.append(str(token))
-                #     where_seen = False
+                elif isinstance(token, sqlparse.sql.Comparison):
+                    conditions.append(str(token))
+                elif isinstance(token, sqlparse.sql.Where):
+                    where_condition.append(str(token).replace('WHERE ',''))
 
         return {
             'columns': columns,
             'tables': tables,
             'conditions': conditions,
+            'where_condition': where_condition
         }
 
     def get_ml_model_details(self):
@@ -64,16 +60,12 @@ class ApproxQuery:
         """
         Execute the queries to check if tables are empty.
         """
-        empty_queries = []
-        for i in query_info['tables']:
-            empty_queries.append(f"""select true from {i} limit 1;""")
+        empty_cache_query = """select true from cache limit 1;"""
         try:
             print("Executing the queries")
             cur = self.conn.cursor()
-            length_of_tables = 0
-            for i in empty_queries:
-                cur.execute(i)
-                length_of_tables += len(cur.fetchall())
+            cur.execute(empty_cache_query)
+            length_of_tables = len(cur.fetchall())
             # close the connection
             self.conn.commit()
             cur.close()
@@ -97,3 +89,17 @@ class ApproxQuery:
         meta = MetaData()
         meta.reflect(bind=engine)
         return connection, meta
+    
+    def fill_cache(self):
+        query = """INSERT INTO cache (model_name, scope) VALUES ('closest_topic', ARRAY[1,2,3,4]::integer[]);"""
+        try:
+            print("Executing the queries")
+            cur = self.conn.cursor()
+            cur.execute(query)
+            # length_of_tables = len(cur.fetchall())
+            # close the connection
+            self.conn.commit()
+            cur.close()
+            print("Added a null value")
+        except Exception as e:
+            print(e)
