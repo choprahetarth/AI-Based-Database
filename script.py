@@ -61,7 +61,8 @@ try:
     print("Executed the queries")
     cur = conn.cursor()
     cur.execute(query)
-    print(cur.fetchall())
+    list_of_output = cur.fetchall()
+    print(float(list_of_output[0][0]))
     # close the connection
     cur.close()
 except Exception as e: print(e)

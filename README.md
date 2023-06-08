@@ -5,7 +5,8 @@ A PoC for a database which uses machine-learning in order to create new rows in 
 query = """SELECT AVG(LENGTH(topic))
         FROM ai_closest_topic
         JOIN ai_sentiment_analysis ON ai_closest_topic.id = ai_sentiment_analysis.id
-        WHERE ai_sentiment_analysis.sentiment = 'false';"""
+        WHERE ai_sentiment_analysis.sentiment = 'false
+        ';"""
 
 ### things to be specified by database admin
 1 - Database Schema (use functions to specify) # in a YAML file
