@@ -71,19 +71,19 @@ class CreateSchema():
 
 
 
-from read_yaml import YamlBuilder
-from connect_to_database import ConnectDb
+# from read_yaml import YamlBuilder
+# from connect_to_database import ConnectDb
 
 
-y = YamlBuilder('config.yaml')
-yaml_parsed  = y.read_yaml()
+# y = YamlBuilder('config.yaml')
+# yaml_parsed  = y.read_yaml()
 
-d = ConnectDb(yaml_parsed)
-conn = d.establish_connection()
+# d = ConnectDb(yaml_parsed)
+# conn = d.establish_connection()
 
-c = CreateSchema(yaml_parsed)
-queries = c.read_structure_of_tables()
-c.execute_queries(queries,conn)
-c.populate_unstructured(conn)
-# close the connection
-conn.close()
+# c = CreateSchema(yaml_parsed)
+# queries = c.read_structure_of_tables()
+# c.execute_queries(queries,conn)
+# c.populate_unstructured(conn)
+# # close the connection
+# conn.close()

@@ -2,7 +2,8 @@ import requests
 import pandas as pd
 from modules.read_yaml import YamlBuilder
 from modules.connect_to_database import ConnectDb
-from modules.exact_query import ExactQuery
+from modules.approximate_query import ApproxQuery
+# from modules.approximate_query import ApproxQuery
 
 #### read the yaml file
 y = YamlBuilder('config.yaml')
@@ -19,14 +20,15 @@ query = """SELECT AVG(LENGTH(topic))
 ';"""
 
 # instantiate the exact query object
-eq = ExactQuery(query, yaml_parsed, conn)
+eq = ApproxQuery(query, yaml_parsed, conn)
 
 # get tables 
 query_info = eq.extract_query_info()
+print(query_info)
 length_of_tables = eq.execute_queries(query_info)
-# print(length_of_tables)
+print(length_of_tables)
 ml_model_details = eq.get_ml_model_details()
-# print(ml_model_details)
+print(ml_model_details)
 # if 0, we know that it has to be populated with ML Query 
 if length_of_tables==0:
     try:

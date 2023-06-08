@@ -5,7 +5,7 @@ import sqlparse
 from sqlalchemy.schema import MetaData
 
 
-class ExactQuery:
+class ApproxQuery:
     def __init__(self, query, yaml_parsed, conn):
         """
         Initialize ExactQuery class with query, yaml_parsed and conn.
@@ -22,6 +22,10 @@ class ExactQuery:
 
         columns = []
         tables = []
+        conditions = []
+
+        from_seen = False
+        where_seen = False
 
         for statement in parsed_query:
             for token in statement.tokens:
@@ -30,12 +34,18 @@ class ExactQuery:
                         columns.append(str(identifier))
                 elif isinstance(token, sqlparse.sql.Identifier):
                     tables.append(str(token))
-                elif token.ttype is sqlparse.tokens.Keyword and token.value.upper() == 'FROM':
-                    from_seen = True
+                # elif token.ttype is sqlparse.tokens.Keyword and token.value.upper() == 'FROM':
+                #     from_seen = True
+                # elif token.ttype is sqlparse.tokens.Keyword and token.value.upper() == 'WHERE':
+                #     where_seen = True
+                # elif where_seen and not isinstance(token, sqlparse.sql.Where):
+                #     conditions.append(str(token))
+                #     where_seen = False
 
         return {
             'columns': columns,
             'tables': tables,
+            'conditions': conditions,
         }
 
     def get_ml_model_details(self):
