@@ -61,7 +61,7 @@ if yaml_file:
         f.write(yaml_file.getbuffer())
     st.success('yaml file saved locally')
 
-query = st.st.text_area("PASTE EXACT QUERY")
+query = st.text_area("PASTE EXACT QUERY")
 
 if yaml_file and query:
     yaml_parsed = read_yaml_file('config.yaml')
