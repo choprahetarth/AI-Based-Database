@@ -5,13 +5,19 @@ import sqlparse
 from sqlalchemy.schema import MetaData
 
 
-class ExactQuery():
+class ExactQuery:
     def __init__(self, query, yaml_parsed, conn):
+        """
+        Initialize ExactQuery class with query, yaml_parsed and conn.
+        """
         self.query = query
         self.yaml_parsed = yaml_parsed
-        self.conn = conn 
+        self.conn = conn
 
     def extract_query_info(self):
+        """
+        Extract columns and tables information from the SQL query.
+        """
         parsed_query = sqlparse.parse(self.query)
 
         columns = []
@@ -33,43 +39,51 @@ class ExactQuery():
         }
 
     def get_ml_model_details(self):
-        ml_model_details={}
+        """
+        Get machine learning model details from the yaml_parsed.
+        """
+        ml_model_details = {}
         for i in self.yaml_parsed['tables']:
-            if i['is_aidb']==True:
+            if i['is_aidb'] == True:
                 model_api = i['model']
                 mapping = i['mapping']
-                ml_model_details[i['name']] = model_api,mapping
+                ml_model_details[i['name']] = model_api, mapping
         return ml_model_details
 
-    def execute_queries(self,query_info):
-        # check if table is empty (for the first run)
+    def execute_queries(self, query_info):
+        """
+        Execute the queries to check if tables are empty.
+        """
         empty_queries = []
         for i in query_info['tables']:
             empty_queries.append(f"""select true from {i} limit 1;""")
         try:
             print("Executing the queries")
             cur = self.conn.cursor()
-            length_of_tables=0
+            length_of_tables = 0
             for i in empty_queries:
                 cur.execute(i)
-                length_of_tables+=len(cur.fetchall())
+                length_of_tables += len(cur.fetchall())
             # close the connection
             self.conn.commit()
             cur.close()
             return length_of_tables
-        except Exception as e: print(e)
+        except Exception as e:
+            print(e)
 
     def connect_to_db_and_reflect(self):
+        """
+        Connect to the database and reflect the metadata.
+        """
         url = URL.create(
             drivername="postgresql",
             username=self.yaml_parsed['database']['user'],
             host=self.yaml_parsed['database']['host'],
             database=self.yaml_parsed['database']['name'],
-            password = self.yaml_parsed['database']['password']
+            password=self.yaml_parsed['database']['password']
         )
         engine = create_engine(url)
         connection = engine.connect()
         meta = MetaData()
         meta.reflect(bind=engine)
         return connection, meta
-
