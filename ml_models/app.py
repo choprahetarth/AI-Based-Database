@@ -26,7 +26,7 @@ def analyze_sentiment():
         ################
         result = {'sentiment':random.randint(0,4)}
         status_code = 200
-        return jsonify(sentiment=result['sentiment']), status_code
+        return  sentiment=result['sentiment']), status_code
     else:
         return jsonify(error="No text provided"), 400
 

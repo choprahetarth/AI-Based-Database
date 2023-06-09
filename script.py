@@ -25,13 +25,36 @@ eq = ApproxQuery(query, yaml_parsed, conn)
 
 # get tables 
 query_info = eq.extract_query_info()
+print(query_info)
 length_of_tables = eq.execute_queries(query_info)
 ml_model_details = eq.get_ml_model_details()
-eq.fill_cache()
+# eq.fill_cache()
+
 
 # # if 0, we know that it has to be populated with ML Query 
-# if length_of_tables==0:
-#         for (x,y) in ml_model_details.items():
+if length_of_tables==0:
+    # we know that the cache table is empty, therefore execute the first ML model to populate the rows
+        for (x,y) in ml_model_details.items():
+                source_table_and_col = ml_model_details[x][1][0]['input'].split('.',1)
+                api = ml_model_details[x][0]
+                output_table_and_col = ml_model_details[x][1][0]['output'].split('.',1)
+                print(source_table_and_col, api, output_table_and_col)
+                connection, meta  = eq.connect_to_db_and_reflect()
+                for chunk in pd.read_sql_table(source_table_and_col[0], connection, chunksize=1):
+                        # primary_key = chunk['id'].values[0]
+                        # payload = chunk[source_table_and_col[1]].values[0]
+                        # response = requests.request("GET", api, params={'text':payload})
+                        # result = response.text
+                        # inserting_query = f"""INSERT INTO {output_table_and_col[0]} (id, {output_table_and_col[1]}) VALUES ({primary_key},'{result}');""" # hack
+                        cache_query = """SELECT id from sentiment_analysis WHERE sentiment_analysis.sentiment = '{"sentiment":4}'"""
+                        print("Executed the queries")
+                        cur = conn.cursor()
+                        cur.execute(cache_query)
+                        print(cur.fetchall())
+                        # close the connection
+                        conn.commit()
+                        cur.close()
+                break
 #             source_table_and_col = ml_model_details[x][1][0]['input'].split('.',1)
 #             api = ml_model_details[x][0]
 #             output_table_and_col = ml_model_details[x][1][0]['output'].split('.',1)
@@ -71,4 +94,4 @@ eq.fill_cache()
 # except Exception as e: print(e)
 
 
-# conn.close()
+conn.close()

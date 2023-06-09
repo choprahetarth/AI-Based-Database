@@ -90,8 +90,8 @@ class ApproxQuery:
         meta.reflect(bind=engine)
         return connection, meta
     
-    def fill_cache(self):
-        query = """INSERT INTO cache (model_name, scope) VALUES ('closest_topic', ARRAY[1,2,3,4]::integer[]);"""
+    def fill_cache(self, rows_affected, column_name):
+        query = f"""INSERT INTO cache (model_name, scope) VALUES ({column_name}, ARRAY[{rows_affected}]::integer[]);"""
         try:
             print("Executing the queries")
             cur = self.conn.cursor()

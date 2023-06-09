@@ -37,6 +37,7 @@ def execute_ml_population(yaml_parsed, conn, eq):
             payload = chunk[source_table_and_col[1]].values[0]
             response = requests.request("GET", api, params={'text': payload})
             result = response.text
+            result = result.replace('\n','')
             inserting_query = f"""INSERT INTO {output_table_and_col[0]} (id, {output_table_and_col[1]}) VALUES ({primary_key},'{result}');"""
             cur = conn.cursor()
             cur.execute(inserting_query)
