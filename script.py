@@ -17,8 +17,7 @@ conn = d.establish_connection()
 query = """SELECT AVG(LENGTH(topic))
         FROM closest_topic
         JOIN sentiment_analysis ON closest_topic.id = sentiment_analysis.id
-        WHERE sentiment_analysis.sentiment = '{"sentiment":4}
-';"""
+        WHERE sentiment_analysis.sentiment = '{"sentiment":4}';"""
 
 # instantiate the exact query object
 eq = ApproxQuery(query, yaml_parsed, conn)
@@ -41,19 +40,20 @@ if length_of_tables==0:
                 print(source_table_and_col, api, output_table_and_col)
                 connection, meta  = eq.connect_to_db_and_reflect()
                 for chunk in pd.read_sql_table(source_table_and_col[0], connection, chunksize=1):
-                        # primary_key = chunk['id'].values[0]
-                        # payload = chunk[source_table_and_col[1]].values[0]
-                        # response = requests.request("GET", api, params={'text':payload})
-                        # result = response.text
-                        # inserting_query = f"""INSERT INTO {output_table_and_col[0]} (id, {output_table_and_col[1]}) VALUES ({primary_key},'{result}');""" # hack
-                        cache_query = """SELECT id from sentiment_analysis WHERE sentiment_analysis.sentiment = '{"sentiment":4}'"""
+                        primary_key = chunk['id'].values[0]
+                        payload = chunk[source_table_and_col[1]].values[0]
+                        response = requests.request("GET", api, params={'text':payload})
+                        result = response.text
+                        inserting_query = f"""INSERT INTO {output_table_and_col[0]} (id, {output_table_and_col[1]}) VALUES ({primary_key},'{result}');""" # hack
                         print("Executed the queries")
                         cur = conn.cursor()
-                        cur.execute(cache_query)
-                        print(cur.fetchall())
+                        cur.execute(inserting_query)
                         # close the connection
-                        conn.commit()
-                        cur.close()
+                cache_query = f"""SELECT id from {output_table_and_col[0]} WHERE {query_info['where_condition']}"""
+                print("Getting the conditions ")
+                print(cur.fetchall())
+                conn.commit()
+                cur.close()
                 break
 #             source_table_and_col = ml_model_details[x][1][0]['input'].split('.',1)
 #             api = ml_model_details[x][0]

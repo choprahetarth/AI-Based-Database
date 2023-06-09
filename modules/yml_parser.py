@@ -54,7 +54,7 @@ class CreateSchema():
         try:
             # initialize the faker object
             fake = Faker()
-            num_samples = 5
+            num_samples = 30
             print("Started populating the values")
             cur = conn.cursor()
             for _ in range(num_samples):
