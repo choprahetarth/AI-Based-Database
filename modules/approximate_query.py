@@ -91,7 +91,7 @@ class ApproxQuery:
         return connection, meta
     
     def fill_cache(self, rows_affected, column_name):
-        query = f"""INSERT INTO cache (model_name, scope) VALUES ({column_name}, ARRAY[{rows_affected}]::integer[]);"""
+        query = f"""INSERT INTO cache (model_name, scope) VALUES ('{column_name}', ARRAY{rows_affected}::integer[]);"""
         try:
             print("Executing the queries")
             cur = self.conn.cursor()

@@ -27,7 +27,7 @@ query_info = eq.extract_query_info()
 print(query_info)
 length_of_tables = eq.execute_queries(query_info)
 ml_model_details = eq.get_ml_model_details()
-# eq.fill_cache()
+
 
 
 # # if 0, we know that it has to be populated with ML Query 
@@ -42,16 +42,24 @@ if length_of_tables==0:
                 for chunk in pd.read_sql_table(source_table_and_col[0], connection, chunksize=1):
                         primary_key = chunk['id'].values[0]
                         payload = chunk[source_table_and_col[1]].values[0]
-                        response = requests.request("GET", api, params={'text':payload})
+                        response = requests.request("GET", 
+                                                    api,
+                                                    params={'text':payload},
+                                                    timeout=100)
                         result = response.text
+                        result = result.replace('\n','')
                         inserting_query = f"""INSERT INTO {output_table_and_col[0]} (id, {output_table_and_col[1]}) VALUES ({primary_key},'{result}');""" # hack
                         print("Executed the queries")
                         cur = conn.cursor()
                         cur.execute(inserting_query)
                         # close the connection
-                cache_query = f"""SELECT id from {output_table_and_col[0]} WHERE {query_info['where_condition']}"""
-                print("Getting the conditions ")
-                print(cur.fetchall())
+                cache_retrivel_query = f"""SELECT id from {output_table_and_col[0]} WHERE {query_info['where_condition'][0]}"""
+                print("Getting the affected rows")
+                cur = conn.cursor()
+                cur.execute(cache_retrivel_query)
+                list_of_rows_affected = [item for tup in cur.fetchall() for item in tup]
+                print(list_of_rows_affected)
+                eq.fill_cache(list_of_rows_affected, output_table_and_col[0])
                 conn.commit()
                 cur.close()
                 break
