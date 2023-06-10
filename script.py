@@ -17,7 +17,7 @@ conn = d.establish_connection()
 query = """SELECT AVG(LENGTH(topic))
         FROM closest_topic
         JOIN sentiment_analysis ON closest_topic.id = sentiment_analysis.id
-        WHERE sentiment_analysis.sentiment = '{"sentiment":1}';"""
+        WHERE sentiment_analysis.sentiment = '{"sentiment":3}';"""
 
 # instantiate the exact query object
 eq = ApproxQuery(query, yaml_parsed, conn)

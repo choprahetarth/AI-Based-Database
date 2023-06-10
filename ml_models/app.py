@@ -45,7 +45,7 @@ def provide_ner():
         # status_code = response.status_code
         # result = response.text
         # result = json.loads(result)
-        result = {'result':str(random.randint(5,1000))}
+        result = {'result':str(random.randint(5,100000))}
         status_code = 200
         return jsonify(ner=result['result']), status_code
     else:
