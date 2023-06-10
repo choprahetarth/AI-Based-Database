@@ -27,11 +27,14 @@ query_info = eq.extract_query_info()
 length_of_tables = eq.execute_queries(query_info)
 ml_model_details = eq.get_ml_model_details()
 
+
+
 # # if 0, we know that it has to be populated with ML Query 
 if length_of_tables==0:
     # we know that the cache table is empty, therefore execute the first ML model to populate the rows
         for idx, x in enumerate(ml_model_details):
                 if idx==0:
+                        print("giving sentiment")
                         source_table_and_col = ml_model_details[x][1][0]['input'].split('.',1)
                         api = ml_model_details[x][0]
                         output_table_and_col = ml_model_details[x][1][0]['output'].split('.',1)
@@ -95,6 +98,10 @@ if length_of_tables==0:
                         # close the connection
                         conn.commit()
                         cur.close()
+
+
+
+
 elif length_of_tables!=0:
         for idx, x in enumerate(ml_model_details):
                 if idx==0:
@@ -107,26 +114,57 @@ elif length_of_tables!=0:
                         cur.execute(cache_retrivel_query)
                         list_of_rows_affected = [item for tup in cur.fetchall() for item in tup]
                         print(list_of_rows_affected)
-                        eq.fill_cache(list_of_rows_affected, output_table_and_col[0])
+                        eq.update_cache(list_of_rows_affected, output_table_and_col[0])
                         conn.commit()
                         cur.close()
-
-
+                if idx==1:
+                        print("Sentiment Analysis Cache from New Query: ",list_of_rows_affected)
+                        source_table_and_col = ml_model_details[x][1][0]['input'].split('.',1)
+                        api = ml_model_details[x][0]
+                        output_table_and_col = ml_model_details[x][1][0]['output'].split('.',1)
+                        connection, meta  = eq.connect_to_db_and_reflect()
+                        get_cache_for_second_row = f"""SELECT scope FROM cache WHERE cache.model_name='{output_table_and_col[0]}'"""
+                        for k in pd.read_sql_query(get_cache_for_second_row, connection, chunksize=1):
+                                list_of_rows_affected_second = k['scope'][0]
+                        list_of_rows_for_updation = list(set(list_of_rows_affected).union(set(list_of_rows_affected_second)))
+                        list_of_rows_for_ml_query = [x for x in list_of_rows_affected_second if x not in list_of_rows_affected]
+                        print(list_of_rows_for_updation)
+                        get_cache_for_second_row = f"""SELECT * from {source_table_and_col[0]} WHERE id = ANY(ARRAY{list_of_rows_for_ml_query});"""
+                        if list_of_rows_for_ml_query:
+                                print(get_cache_for_second_row)
+                                for chunk in pd.read_sql_query(get_cache_for_second_row, connection, chunksize=1):
+                                        primary_key = chunk['id'].values[0]
+                                        api = ml_model_details[x][0]
+                                        payload = chunk[source_table_and_col[1]].values[0]
+                                        response = requests.request("GET", 
+                                                                api,
+                                                                params={'text':payload},
+                                                                timeout=100)
+                                        result = response.text
+                                        result = result.replace('\n','')
+                                        inserting_query = f"""INSERT INTO {output_table_and_col[0]} (id, {output_table_and_col[1]}) VALUES ({primary_key},'{result}');""" # hack
+                                        ######### APPEND THOSE ROWS INTO THE CACHE ########################
+                                        cur = conn.cursor()
+                                        cur.execute(inserting_query)
+                                        conn.commit()
+                                cur.close()
+                                eq.update_cache(list_of_rows_for_updation, output_table_and_col[0])
+                        # print("new sentiment analysis = ", list_of_rows_for_updation, "for ml queries= ",  list_of_rows_for_ml_query)
 # else:
 #     print("DB Already Populated")
 
 # print("Fetching Results of Exact query")
 
-# try:
-#     # initiate the cursor
-#     print("Executed the queries")
-#     cur = conn.cursor()
-#     cur.execute(query)
-#     list_of_output = cur.fetchall()
-#     print((list_of_output))
-#     # close the connection
-#     cur.close()
-# except Exception as e: print(e)
+try:
+    # initiate the cursor
+    print("Executed the queries")
+    cur = conn.cursor()
+    cur.execute(query)
+    list_of_output = cur.fetchall()
+    print((list_of_output))
+    # close the connection
+    cur.close()
+except Exception as e: print(e)
 
 
 conn.close()

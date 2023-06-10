@@ -103,3 +103,17 @@ class ApproxQuery:
             print("Added a null value")
         except Exception as e:
             print(e)
+
+    def update_cache(self, rows_affected, column_name):
+        query = f"""UPDATE cache SET scope = ARRAY{rows_affected}::integer[] WHERE model_name = '{column_name}';"""
+        try:
+            print("Executing the queries")
+            cur = self.conn.cursor()
+            cur.execute(query)
+            # length_of_tables = len(cur.fetchall())
+            # close the connection
+            self.conn.commit()
+            cur.close()
+            print("Added a null value")
+        except Exception as e:
+            print(e)
