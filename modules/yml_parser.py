@@ -34,7 +34,7 @@ class CreateSchema():
             query += ");"
             queries.append(query)
         # add approximate tables
-        approx_query='CREATE TABLE IF NOT EXISTS cache (model_name TEXT, scope INTEGER[]);'
+        approx_query='CREATE TABLE IF NOT EXISTS cache (model_name TEXT PRIMARY KEY, scope INTEGER[]);'
         queries.append(approx_query)
         return queries
 
