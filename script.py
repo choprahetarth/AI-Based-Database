@@ -109,11 +109,11 @@ elif length_of_tables!=0:
                         api = ml_model_details[x][0]
                         output_table_and_col = ml_model_details[x][1][0]['output'].split('.',1)
                         cache_retrivel_query = f"""SELECT id from {output_table_and_col[0]} WHERE {query_info['where_condition'][0]}"""
-                        print("Getting the affected rows")
+                        print("Getting the affected rows", cache_retrivel_query)
                         cur = conn.cursor()
                         cur.execute(cache_retrivel_query)
                         list_of_rows_affected = [item for tup in cur.fetchall() for item in tup]
-                        print(list_of_rows_affected)
+                        print("Ye rows change hue hai for the new condition ", list_of_rows_affected)
                         eq.update_cache(list_of_rows_affected, output_table_and_col[0])
                         conn.commit()
                         cur.close()
@@ -126,12 +126,14 @@ elif length_of_tables!=0:
                         get_cache_for_second_row = f"""SELECT scope FROM cache WHERE cache.model_name='{output_table_and_col[0]}'"""
                         for k in pd.read_sql_query(get_cache_for_second_row, connection, chunksize=1):
                                 list_of_rows_affected_second = k['scope'][0]
+                        print("cache me se ye nikla, ", list_of_rows_affected_second)
                         list_of_rows_for_updation = list(set(list_of_rows_affected).union(set(list_of_rows_affected_second)))
-                        list_of_rows_for_ml_query = [x for x in list_of_rows_affected_second if x not in list_of_rows_affected]
-                        print(list_of_rows_for_updation)
+                        list_of_rows_for_ml_query = [x for x in list_of_rows_affected if x not in list_of_rows_affected_second]
+                        print("Bache sirf yehi for ml query, ",list_of_rows_for_ml_query)
+                        print("combined rows ye ho gaye ", list_of_rows_for_updation)
                         get_cache_for_second_row = f"""SELECT * from {source_table_and_col[0]} WHERE id = ANY(ARRAY{list_of_rows_for_ml_query});"""
+                        print(get_cache_for_second_row)
                         if list_of_rows_for_ml_query:
-                                print(get_cache_for_second_row)
                                 for chunk in pd.read_sql_query(get_cache_for_second_row, connection, chunksize=1):
                                         primary_key = chunk['id'].values[0]
                                         api = ml_model_details[x][0]
@@ -143,21 +145,21 @@ elif length_of_tables!=0:
                                         result = response.text
                                         result = result.replace('\n','')
                                         inserting_query = f"""INSERT INTO {output_table_and_col[0]} (id, {output_table_and_col[1]}) VALUES ({primary_key},'{result}');""" # hack
-                                        ######### APPEND THOSE ROWS INTO THE CACHE ########################
+#                                         ######### APPEND THOSE ROWS INTO THE CACHE ########################
                                         cur = conn.cursor()
                                         cur.execute(inserting_query)
                                         conn.commit()
                                 cur.close()
                                 eq.update_cache(list_of_rows_for_updation, output_table_and_col[0])
-                        # print("new sentiment analysis = ", list_of_rows_for_updation, "for ml queries= ",  list_of_rows_for_ml_query)
-# else:
-#     print("DB Already Populated")
+                        conn.commit()
+                        cur.close()
 
-# print("Fetching Results of Exact query")
 
 try:
     # initiate the cursor
     print("Executed the queries")
+    #### connect the database
+    conn = d.establish_connection()
     cur = conn.cursor()
     cur.execute(query)
     list_of_output = cur.fetchall()
