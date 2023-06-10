@@ -17,7 +17,7 @@ conn = d.establish_connection()
 query = """SELECT AVG(LENGTH(topic))
         FROM closest_topic
         JOIN sentiment_analysis ON closest_topic.id = sentiment_analysis.id
-        WHERE sentiment_analysis.sentiment = '{"sentiment":4}';"""
+        WHERE sentiment_analysis.sentiment = '{"sentiment":1}';"""
 
 # instantiate the exact query object
 eq = ApproxQuery(query, yaml_parsed, conn)
@@ -95,25 +95,38 @@ if length_of_tables==0:
                         # close the connection
                         conn.commit()
                         cur.close()
-# if length_of_tables!=0:
-       
+elif length_of_tables!=0:
+        for idx, x in enumerate(ml_model_details):
+                if idx==0:
+                        source_table_and_col = ml_model_details[x][1][0]['input'].split('.',1)
+                        api = ml_model_details[x][0]
+                        output_table_and_col = ml_model_details[x][1][0]['output'].split('.',1)
+                        cache_retrivel_query = f"""SELECT id from {output_table_and_col[0]} WHERE {query_info['where_condition'][0]}"""
+                        print("Getting the affected rows")
+                        cur = conn.cursor()
+                        cur.execute(cache_retrivel_query)
+                        list_of_rows_affected = [item for tup in cur.fetchall() for item in tup]
+                        print(list_of_rows_affected)
+                        eq.fill_cache(list_of_rows_affected, output_table_and_col[0])
+                        conn.commit()
+                        cur.close()
 
 
-else:
-    print("DB Already Populated")
+# else:
+#     print("DB Already Populated")
 
-print("Fetching Results of Exact query")
+# print("Fetching Results of Exact query")
 
-try:
-    # initiate the cursor
-    print("Executed the queries")
-    cur = conn.cursor()
-    cur.execute(query)
-    list_of_output = cur.fetchall()
-    print((list_of_output))
-    # close the connection
-    cur.close()
-except Exception as e: print(e)
+# try:
+#     # initiate the cursor
+#     print("Executed the queries")
+#     cur = conn.cursor()
+#     cur.execute(query)
+#     list_of_output = cur.fetchall()
+#     print((list_of_output))
+#     # close the connection
+#     cur.close()
+# except Exception as e: print(e)
 
 
 conn.close()
